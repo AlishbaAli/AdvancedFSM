@@ -20,18 +20,21 @@ export class FiniteStateMachine {
     this.transition = config.transition;
     this.currentState = config.initialState;
 
-    this.validateConfig();
+    this.validateConfig(); // Ensure the FSM is well-formed before use
   }
 
+  // Validates states, transitions, and alphabet
   private validateConfig() {
     if (!this.states.has(this.initialState)) {
       throw new Error(`Invalid initial state: ${this.initialState}`);
     }
+
     for (const state of this.finalStates) {
       if (!this.states.has(state)) {
         throw new Error(`Invalid final state: ${state}`);
       }
     }
+
     for (const state in this.transition) {
       for (const symbol in this.transition[state]) {
         const nextState = this.transition[state][symbol];
@@ -45,10 +48,12 @@ export class FiniteStateMachine {
     }
   }
 
+  // Reset FSM to its initial state
   public reset() {
     this.currentState = this.initialState;
   }
 
+  // Consume a single symbol and update the current state
   public consume(symbol: Symbol): void {
     if (!this.alphabet.has(symbol)) {
       throw new Error(`Symbol "${symbol}" not in alphabet`);
@@ -73,6 +78,7 @@ export class FiniteStateMachine {
     this.currentState = nextState;
   }
 
+  // Run the FSM over an input array of symbols
   public run(input: Symbol[]): State {
     this.reset();
     for (const symbol of input) {
@@ -80,6 +86,8 @@ export class FiniteStateMachine {
     }
     return this.currentState;
   }
+
+  // Process a single bit (for step-by-step simulation or testing)
   public processBit(symbol: string): void {
     if (!this.alphabet.has(symbol)) {
       throw new Error(`Invalid symbol: ${symbol}`);
@@ -87,10 +95,12 @@ export class FiniteStateMachine {
     this.currentState = this.transition[this.currentState][symbol];
   }
 
+  // Check if the current state is an accepting (final) state
   public isAccepted(): boolean {
     return this.finalStates.has(this.currentState);
   }
 
+  // Expose current state (useful for debugging and testing)
   public getCurrentState(): State {
     return this.currentState;
   }
